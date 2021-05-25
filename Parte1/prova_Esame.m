@@ -28,9 +28,13 @@ x(:, 1) = x0;
 
 sysc = ss(Ac, Bc, C, D);
 
-%% discetization of the system defined above
+%% check controllability
+co = ctrb(sysc);
+controllability = rank(co);
+
+%% discretization of the system defined above
 sampleTime = 0.1;
-horizon = 500;
+horizon = 200;
 t = 0 : sampleTime : horizon;
 N = length(t);
 
@@ -44,20 +48,17 @@ Bd = sysd.b;
 Q = 1;
 Qf = Q;
 
-% control cost, augmenting the cost the control will be less
+% control cost, by augmenting it the system will be less controlled
 R = 1;
 
 % STEP 1
 [L, P] = riccati_tracking(Qf, Q, R, Ad, Bd, C, N);
 
-%[Kinf2,Pinf2,e2]=dlqr(Ad,Bd,Q,R);
-%[Kinf,Pinf,e]=lqr(sysd,Q,R);
-
 % signal to track
-z = 100 * ones(N, 1)';
+%z = 100 * ones(N, 1)';
 %z = t;
 %z = square(1/20 * t);
-%z = 10 * sin(1/5 * t);
+z = 10 * sin(1/5 * t);
 
 %segnale da tracciare su simulink
 z_track2sml = [t' z'];
@@ -85,18 +86,18 @@ for i = 1 : N
     y(:, i)= C * x(:, i);
 end
 
-%% plotting
-subplot(3, 1, 1);
-plot(t, x(:, :));
-title('states');
+%plotting
+% subplot(3, 1, 1);
+% plot(t, x(3, :));
+% title('states');
 
-subplot(3, 1, 2);
+subplot(2, 1, 1);
 plot(t, y(1, :), 'b');
 hold on;
 plot(t, z, 'r');
 title('output');
 hold off;
 
-subplot(3, 1, 3);
+subplot(2, 1, 2);
 plot(t(1 : end - 1), u);
 title('control');
