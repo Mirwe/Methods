@@ -28,7 +28,6 @@ x(:, 1) = x0;
 
 sysc = ss(Ac, Bc, C, D);
 
-
 %% Discretization of the system defined above
 sampleTime = 0.1;
 horizon = 200;
