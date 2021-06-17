@@ -15,8 +15,8 @@ function [L, P] = riccati_tracking(Qf, Q, R, A, B, C, horizon)
     end
     
     %L term computation
-    for t = horizon - 1 : -1 : 1
-        Pt_1 = P(:, :, t + 1);
-        L(:, t) = (R + B' * Pt_1 * B)^(-1) * B' * Pt_1 * A;
+    for t = horizon : -1 : 2
+        Pt = P(:, :, t);
+        L(:, :, t - 1) = (R + B' * Pt * B)^(-1) * B' * Pt * A;
     end
 end
