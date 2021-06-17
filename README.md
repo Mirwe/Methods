@@ -1,6 +1,6 @@
 # Methods and Tools for Industrial Automation
 
-Authors - *Luca Mirenda* and *Marco scanu*
+Authors: *Luca Mirenda* and *Marco Scanu*
 
 ## Contenuto
 
