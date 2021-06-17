@@ -5,7 +5,7 @@
 % setpoint: values to track
 function  [g, Lg] = computeLg_g(Qf, Q, R, P, A, B, C, horizon, setpoint)
     W = C' * Q;
-    E = B * (R\B)';
+    E = B * R^(-1) * B';
     
     % g term computation
     g(:, :, horizon) = C' * Qf * setpoint(:, horizon);
@@ -18,5 +18,4 @@ function  [g, Lg] = computeLg_g(Qf, Q, R, P, A, B, C, horizon, setpoint)
     for i = horizon - 1 : -1 : 1
         Lg(:, :, i) = (R + B' * P(:, :, i + 1) * B)\B';
     end
-    
 end
