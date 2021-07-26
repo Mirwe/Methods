@@ -1,10 +1,9 @@
 # Overview
-Directory contenente il documento ***progetto1.docx*** che descrive l'obiettivo di questa prima parte di progetto.
+Directory that contains the document named ***progetto1.docx***: it describes the objective of this first part of the project.
 
-Sono presenti inoltre le seguenti directory:
+Here are conteined the following directories:
 ## Directory matlabCode
-- Implementazione in *matlab* di un ***controller LQT*** per il sistema dato.
+- Implementation of a ***LQT controller*** in *matlab* for the given system.
 
 ## Directory simulink
-- Implementazione in *simulink* di un ***controller PID*** per il sistema dato.
-
+- Implementation of a ***PID controller*** in *simulink* for the given system.
