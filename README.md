@@ -2,6 +2,7 @@
 
 Authors: *Luca Mirenda* and *Marco Scanu*
 
-## Contenuto
+## Content
 
-- ***Parte1*** -> directory that contains *matlab/simulink* files about the first part of the final project
+- ***Parte1*** -> directory that contains *matlab/simulink* files about the first part of the final project;
+- ***Parte2*** -> directory that contains *matlab* files about the second part of the final project;
