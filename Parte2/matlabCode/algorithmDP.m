@@ -99,13 +99,13 @@ end
 nextOptJob0 = X{1}(U0, :);
 
 %% Forward phase
-nextState(1, 1) = U0;
+posNextState(1, 1) = U0;
 path(1, 1) = nextOptJob0;
 
 for i = 1 : num_jobs - 1
-    nextState(1, i + 1) = U{i}(nextState(1, i), :);
+    posNextState(1, i + 1) = U{i}(posNextState(1, i), :);
     
-    path(1, i + 1) = nextOptJob{i}(nextState(1, i));
+    path(1, i + 1) = nextOptJob{i}(posNextState(1, i));
 end
 
 fprintf("Optimal schedule:\n");
