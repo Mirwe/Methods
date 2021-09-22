@@ -21,34 +21,33 @@ w = [1.5 1.5 1.5 1 1]';
 % J4 -> J5
 
 %% Definition of the stages
-% Here I get all the possible combination of the states
+% Get all the possible combination of the states for each stage
 X0 = 0;
 for i = num_jobs : -1 : 1
     tempX{i} = nchoosek(jobs, i);
 end
 
-% Here I delete the combinations that do not satisfy the constraints
+% Delete all the states that do not satisfy the constraints
 for i = length(tempX) : -1 : 1
     k = 1;
     for j = 1 : length(tempX{i}(:, 1))
-        if ismember(1, tempX{i}(j, :)) || ismember(4, tempX{i}(j, :))
-            X{i}(k, :) = tempX{i}(j, :);
-            k = k + 1;
-            if (i ~= 1)
-                if (ismember(2, X{i}(k - 1, :)) ...
-                        || ismember(3, X{i}(k - 1, :))) ...
-                            && ~ismember(1, X{i}(k - 1, :))
-                    X{i}(k - 1, :) = [];
-                    k = k - 1;
-                end
+        
+        X{i}(k, :) = tempX{i}(j, :);
+        k = k + 1;
 
-                if ismember(5, X{i}(k - 1, :)) ...
-                        && ~ismember(4, X{i}(k - 1, :))
-                    X{i}(k - 1, :) = [];
-                    k = k - 1;
-                end
-            end
-        end        
+        if (ismember(2, X{i}(k - 1, :)) ...
+                || ismember(3, X{i}(k - 1, :))) ...
+                    && ~ismember(1, X{i}(k - 1, :))
+            X{i}(k - 1, :) = [];
+            k = k - 1;
+        end
+
+        if ismember(5, X{i}(k - 1, :)) ...
+                && ~ismember(4, X{i}(k - 1, :))
+            X{i}(k - 1, :) = [];
+            k = k - 1;
+        end     
+                
     end
 end
 
@@ -62,18 +61,28 @@ Go{num_jobs} = 0;
 
 % Stages k = 4 - 3 - 2 - 1
 for k = num_jobs - 1 : -1 : 1
+    % inizialization of the costs
     G{k} = Inf(length(X{k}(:, 1)), length(X{k + 1}(:, 1)));
+    
+    % for each state i at stage k
     for i = 1 : length(X{k}(:, 1))
+        
+        % Starting time
         st = totalProcessingTime(X{k}(i, :), p);
+        
+        %for each state j at state k+1
         for j = 1 : length(X{k + 1}(:, 1))
+            
+            %if from the state i, it's possible to reach state j
             if ismember(X{k}(i, :), X{k + 1}(j, :))
-                %job to be scheduled from set i to j at stage k to k+1
+                
+                %job to be scheduled from state i to j from stage k to k+1
                 job(:, j) = setdiff(X{k + 1}(j, :), X{k}(i, :));
                 
-                %tardiness for the set i
+                %tardiness for the state i
                 tardiness = max((st + p(job(:, j)) - d(job(:, j))), 0);
                 
-                %costs for each set i to j
+                %costs from state i to state j
                 G{k}(i, j) = Go{k + 1}(j) + w(job(:, j)) * tardiness;
             end
         end
@@ -103,8 +112,10 @@ posNextState(1, 1) = U0;
 path(1, 1) = nextOptJob0;
 
 for i = 1 : num_jobs - 1
+    %Get the position of the optimal state at the next stage
     posNextState(1, i + 1) = U{i}(posNextState(1, i), :);
     
+    %Get the job to execute in order to reach the next optimal state
     path(1, i + 1) = nextOptJob{i}(posNextState(1, i));
 end
 
