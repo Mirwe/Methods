@@ -89,11 +89,11 @@ for k = num_jobs - 1 : -1 : 1
         
         % Optimal cost for state i at stage k to k+1
         % U is the position of the next optimal state (at stage k+1) from the stage k and state i
-        [Go{k}(i), U{k}(i, :)] = min(G{k}(i, :));
+        [Go{k}(i, :), U{k}(i, :)] = min(G{k}(i, :));
         
         % It is the job to be executed (at state i) in order to reach the
         % optimal state (at stage k+1) from the actual stage k
-        nextOptJob{k}(i) = job(:, U{k}(i, :));
+        nextOptJob{k}(i, :) = job(:, U{k}(i, :));
     end
 end
 
@@ -101,7 +101,7 @@ end
 for i = length(X{1}(:, 1)) : -1 : 1
     st = 0;
     tardiness = max((st + p(X{1}(i)) - d(X{1}(i))), 0);
-    G0(i) = Go{1}(i) + w(X{1}(i)) * tardiness;
+    G0(i) = Go{1}(i, :) + w(X{1}(i)) * tardiness;
 end
 
 [Go0, U0] = min(G0);
@@ -116,7 +116,7 @@ for i = 1 : num_jobs - 1
     posNextState(1, i + 1) = U{i}(posNextState(1, i), :);
     
     %Get the job to execute in order to reach the next optimal state
-    path(1, i + 1) = nextOptJob{i}(posNextState(1, i));
+    path(1, i + 1) = nextOptJob{i}(posNextState(1, i), :);
 end
 
 fprintf("Optimal schedule:\n");
@@ -126,4 +126,4 @@ end
 
 fprintf("Job%i \n\n", path(1, num_jobs));
 
-fprintf("With a weigth tardiness of: %i \n", Go0);
+fprintf("With a weighted tardiness of: %i \n", Go0);
