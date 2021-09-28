@@ -6,7 +6,7 @@ quantita_acquistata = [500, 50, 1200, 13400, 400];
 scorta_finale = [20, 80, 800, 1450, 1100];
 
 
-S = scorta_iniziale + quantita_acquistata;
+S = scorta_iniziale + quantita_acquistata; % + scorta_finale?;
 C = S/12;
 Q = S - scorta_finale;
 

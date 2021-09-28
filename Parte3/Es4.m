@@ -1,28 +1,64 @@
 clear;
 clc;
 
-PV = [686, 690, 691, 693, 699, 719];
-
+%% Definizione problema
 data = xlsread('TABELLE EROGATO.xlsx');
-
 data = data(3:366,219:236);
 
 %eliminate negative data
 data(data<0)=NaN;
 
-% Definire dati caratteristici - dimensione, periodo di consegna - ipotizzando 
-% lotto economico con costo di magazzino pari al costo di immobilizzazione del capitale 
-% (ad es. 3% del valore in magazzino) e costo di consegna effettuato tramite autobotte di 
-% 39kl con costo 0.5€/km.
+j=1;
+
+for i=1: 3: 18
+    erogato_PV{j} = data(:,i:i+2);
+    j = j+1;
+end
 
 % Capienza autobotte in KL:
 capienza_autob = 39;
 costo_km = 0.5;
-% Costo di mantenimento percentuale annuale:
+
+% prezzo per unità
+P = [1.5, 1.7, 1.6];
+
+% Costo di mantenimento percentuale annuale
 costo_perc = 0.03;
+% storage cost per unità
+cm = costo_perc*P;
+
+%% Lotto economico
+
+for i=1: length(erogato_PV)
+    
+    dist = 100 * i;
+    
+    for j=1:3
+
+        D(i,j) = mean(erogato_PV{i}(:,j), 'omitnan');
+        
+               
+        fo(i,j) = dist * costo_km;
+
+        Qstar(i,j) = sqrt(2*fo(i,j)*D(i,j)/cm(j));
+        Tstar(i,j) = sqrt((2*fo(i,j))/(cm(j)*D(i,j)));
+        Nstar(i,j) = sqrt((cm(j)*D(i,j))/(2*fo(i,j)));
+    end
+end
 
 
+%% Wegnar-Within
 
-
-
+T = 364;
+for i=1: length(erogato_PV)
+    
+    for j=1:3
+        sum = cumsum(erogato_PV{i}(:,j), 'omitnan');
+        domanda(i,j) = sum(length(sum));
+        
+        [cost, route] = wagner(fo(i,j),cm(j), domanda(i,j), T);
+        cost_(i,j) = cost;
+        route_{i}{j} = route;
+    end
+end
 
