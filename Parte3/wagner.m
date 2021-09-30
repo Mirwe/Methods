@@ -1,5 +1,5 @@
 
-function [cost route] = wagner(fo, cm, d, T)
+function [cost rute] = wagner(fo, cm, d, T)
 
     costo=zeros(T+1);
     for i=1:T
@@ -8,12 +8,12 @@ function [cost route] = wagner(fo, cm, d, T)
             
             for k=j-1:-1:i
                 for m=k:-1:i+1
-                    costo(i,j)=costo(i,j)+cm*d;
+                    costo(i,j)=costo(i,j)+cm*d(k);
                 end
             end
         end
     end
     
-    [cost route] = dijkstra(costo, 1, 364);
+    [cost rute] = dijkstra(costo, 1, 364);
 
 end

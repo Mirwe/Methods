@@ -19,6 +19,8 @@ end
 capienza_autob = 39;
 costo_km = 0.5;
 
+dist = [100 200 300 400 500 600];
+
 % prezzo per unità
 P = [1.5, 1.7, 1.6];
 
@@ -30,15 +32,12 @@ cm = costo_perc*P;
 %% Lotto economico
 
 for i=1: length(erogato_PV)
-    
-    dist = 100 * i;
-    
+  
     for j=1:3
 
         D(i,j) = mean(erogato_PV{i}(:,j), 'omitnan');
-        
-               
-        fo(i,j) = dist * costo_km;
+                    
+        fo(i,j) = dist(i) * costo_km;
 
         Qstar(i,j) = sqrt(2*fo(i,j)*D(i,j)/cm(j));
         Tstar(i,j) = sqrt((2*fo(i,j))/(cm(j)*D(i,j)));
@@ -53,12 +52,14 @@ T = 364;
 for i=1: length(erogato_PV)
     
     for j=1:3
-        sum = cumsum(erogato_PV{i}(:,j), 'omitnan');
-        domanda(i,j) = sum(length(sum));
+        %sum = cumsum(erogato_PV{i}(:,j), 'omitnan');
+        %domanda(i,j) = sum(length(sum));
+        domanda = erogato_PV{i}(:,j);
+        domanda(isnan(domanda))=0;
         
-        [cost, route] = wagner(fo(i,j),cm(j), domanda(i,j), T);
+        [cost, rute] = wagner(fo(i,j),cm(j), domanda, T);
         cost_(i,j) = cost;
-        route_{i}{j} = route;
+        rute_{i}{j} = rute;
     end
 end
 
