@@ -1,64 +1,101 @@
 clear;
 clc;
 
-%% Definizione problema
+%% Loading data
 data = xlsread('TABELLE EROGATO.xlsx');
-data = data(3:366,219:236);
+data = data(3 : 366, 219 : 236);
 
-%eliminate negative data
-data(data<0)=NaN;
+% removing negative values
+data(data < 0) = NaN;
 
-j=1;
-
-for i=1: 3: 18
-    erogato_PV{j} = data(:,i:i+2);
-    j = j+1;
+erogato_PV = {0, 0, 0};
+j = 1;
+for i = 1 : 3 : 18
+    erogato_PV{j} = data(:, i : i + 2);
+    j = j + 1;
 end
 
-% Capienza autobotte in KL:
-capienza_autob = 39;
-costo_km = 0.5;
-
+%% Info PV and products
+% distance of each PV
 dist = [100 200 300 400 500 600];
 
-% prezzo per unità
-P = [1.5, 1.7, 1.6];
+%price for transporting the fuel for each km
+costo_km = 0.5;
+sizeTruck = 39000;
 
-% Costo di mantenimento percentuale annuale
+% number of product for each PV
+numP = 3;
+P = [1.5, 1.7, 1.6]; % price for each product (fuel)
+
+%reference period
+period = 364; %a quanto pare manca il 1° Gennaio e quindi sono 364 giorni e non 365 
+
+% storage cost rate (for the reference period -> a year)
 costo_perc = 0.03;
-% storage cost per unità
-cm = costo_perc*P;
+
+% storage cost for unit
+cm = costo_perc * P;
+
+fo = zeros(length(erogato_PV), numP);
+Dday = zeros(length(erogato_PV), numP);
+Dtot = zeros(length(erogato_PV), numP);
+Qstar = zeros(length(erogato_PV), numP);
+Tstar = zeros(length(erogato_PV), numP);
+Nstar = zeros(length(erogato_PV), numP);
 
 %% Lotto economico
-
-for i=1: length(erogato_PV)
-  
-    for j=1:3
-
-        D(i,j) = mean(erogato_PV{i}(:,j), 'omitnan');
-                    
-        fo(i,j) = dist(i) * costo_km;
-
-        Qstar(i,j) = sqrt(2*fo(i,j)*D(i,j)/cm(j));
-        Tstar(i,j) = sqrt((2*fo(i,j))/(cm(j)*D(i,j)));
-        Nstar(i,j) = sqrt((cm(j)*D(i,j))/(2*fo(i,j)));
+for i = 1 : length(erogato_PV)
+    for j = 1 : numP
+        Dday(i, j) = mean(erogato_PV{i}(:, j), 'omitnan');
+        
+        % la domanda nel periodo di riferimento (un anno) dovrebbe essere
+        % quella giornaliera per il numero di giorni del periodo di
+        % riferimento (oppure ho preso un abbaglio ?)
+        % se così non fosse, i valori della quantità ottima per prodotto e
+        % del numero d'ordine non mi sembrano sensati, dobbiamo controllare.
+        Dtot(i, j) = Dday(i, j) * period;  
+        
+        % cost of a single order
+        fo(i, j) = dist(i) * costo_km;
+    
+        % optimal quantity of fuel to deliver to minimize costs
+        Qstar(i, j) = sqrt(2 * fo(i, j) * Dtot(i, j) / cm(j));
+        
+        % optimal supply time
+        Tstar(i, j) = sqrt((2 * fo(i, j)) / (cm(j) * Dtot(i, j)));
+        
+        % optimal number of orders for each fuel
+        Nstar(i, j) = sqrt((cm(j) * Dtot(i, j)) / (2 * fo(i, j)));
     end
 end
 
+% Ho messo il costo totale per completezza (potremmo lasciarlo o toglierlo)
+% Poi voglio farti un ragionamento basato sulla formula per calcolare la
+% Qstar
+storageCost = zeros(length(erogato_PV), numP);
+orderingCost = zeros(length(erogato_PV), numP);
+totCost = zeros(length(erogato_PV), numP);
+for i = 1 : length(erogato_PV)
+    for j = 1 : numP
+        storageCost(i, j) = cm(j) * (Qstar(i, j) / 2);
+        orderingCost(i, j) = fo(i, j) * ceil(Qstar(i, j) / sizeTruck) * (Dtot(i, j) / Qstar(i, j));
 
-%% Wegnar-Within
+        % total cost of managing the inventory in the reference period
+        totCost(i, j) = storageCost(i, j) + orderingCost(i, j);
+    end
+end
 
-T = 364;
-for i=1: length(erogato_PV)
-    
-    for j=1:3
-        %sum = cumsum(erogato_PV{i}(:,j), 'omitnan');
-        %domanda(i,j) = sum(length(sum));
-        domanda = erogato_PV{i}(:,j);
-        domanda(isnan(domanda))=0;
+%% Wagner-Whitin
+cost_ = zeros(length(erogato_PV), numP);
+route_ = {{}, {}, {}, {}, {}, {}};
+
+for i = 1 : length(erogato_PV)
+    for j = 1 : numP
+        domanda = erogato_PV{i}(:, j);
+        domanda(isnan(domanda)) = 0;
         
-        [cost, route] = WagnerWithin(fo(i,j),cm(j), domanda, T);
-        cost_(i,j) = cost;
+        [cost, route] = WagnerWhitin(fo(i, j), cm(j), domanda, period);
+        cost_(i, j) = cost;
         route_{i}{j} = route;
     end
 end
