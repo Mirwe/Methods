@@ -16,9 +16,10 @@ figure
 plot(months,demand,'o',months,test_demand,'x')
 legend('Data','Predictions')
 errore=immse(test_demand,demand);
+MAPE= mean((abs(test_demand-demand))./demand);
 %}
 
-MAPE= mean((abs(test_demand-demand))./demand);
+
 
 %Prediction for the next months
 next_months = (9 : 16)';

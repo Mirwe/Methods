@@ -46,14 +46,7 @@ Nstar = zeros(length(erogato_PV), numP);
 %% Lotto economico
 for i = 1 : length(erogato_PV)
     for j = 1 : numP
-        Dday(i, j) = mean(erogato_PV{i}(:, j), 'omitnan');
-        
-        % la domanda nel periodo di riferimento (un anno) dovrebbe essere
-        % quella giornaliera per il numero di giorni del periodo di
-        % riferimento (oppure ho preso un abbaglio ?)
-        % se così non fosse, i valori della quantità ottima per prodotto e
-        % del numero d'ordine non mi sembrano sensati, dobbiamo controllare.
-        Dtot(i, j) = Dday(i, j) * period;  
+        Dtot(i, j) = sum(erogato_PV{i}(:, j), 'omitnan');
         
         % cost of a single order
         fo(i, j) = dist(i) * costo_km;
@@ -68,6 +61,8 @@ for i = 1 : length(erogato_PV)
         Nstar(i, j) = sqrt((cm(j) * Dtot(i, j)) / (2 * fo(i, j)));
     end
 end
+
+viaggi_necessari = ceil(Qstar./sizeTruck);%serve/si fa cosi? 
 
 % Ho messo il costo totale per completezza (potremmo lasciarlo o toglierlo)
 % Poi voglio farti un ragionamento basato sulla formula per calcolare la
