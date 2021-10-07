@@ -62,11 +62,24 @@ for i = 1 : length(erogato_PV)
     end
 end
 
-viaggi_necessari = ceil(Qstar./sizeTruck);%serve/si fa cosi? 
+
+storageCost = zeros(length(erogato_PV), numP);
+orderingCost = zeros(length(erogato_PV), numP);
+totCost = zeros(length(erogato_PV), numP);
+for i = 1 : length(erogato_PV)
+    for j = 1 : numP
+        storageCost(i, j) = cm(j) * (Qstar(i, j) / 2);
+        order_cost = fo(i, j) * (Dtot(i, j) / Qstar(i, j));
+        
+        totCost(i, j) = storageCost(i, j) + orderingCost(i, j);
+    end
+    
+end
 
 % Ho messo il costo totale per completezza (potremmo lasciarlo o toglierlo)
 % Poi voglio farti un ragionamento basato sulla formula per calcolare la
 % Qstar
+%{
 storageCost = zeros(length(erogato_PV), numP);
 orderingCost = zeros(length(erogato_PV), numP);
 totCost = zeros(length(erogato_PV), numP);
@@ -79,6 +92,7 @@ for i = 1 : length(erogato_PV)
         totCost(i, j) = storageCost(i, j) + orderingCost(i, j);
     end
 end
+%}
 
 %% Wagner-Whitin
 cost_ = zeros(length(erogato_PV), numP);
@@ -88,10 +102,11 @@ for i = 1 : length(erogato_PV)
     for j = 1 : numP
         domanda = erogato_PV{i}(:, j);
         domanda(isnan(domanda)) = 0;
-        
-        [cost, route] = WagnerWhitin(fo(i, j), cm(j), domanda, period);
+             
+        [cost, route, quantity] = WagnerWhitin(fo(i, j), cm(j), domanda, period, sizeTruck);
         cost_(i, j) = cost;
         route_{i}{j} = route;
+        quantity_{i}{j} = quantity;
     end
 end
 
