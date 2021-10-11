@@ -10,14 +10,14 @@ demand = [580, 700, 775, 650, 585, 760, 790, 815]';
 % Fit linear regression model
 mdl = fitlm(months, demand, 'linear');
 
-%{
+
 test_demand = predict(mdl, months);
 figure
 plot(months,demand,'o',months,test_demand,'x')
 legend('Data','Predictions')
 errore=immse(test_demand,demand);
 MAPE= mean((abs(test_demand-demand))./demand);
-%}
+
 
 
 
