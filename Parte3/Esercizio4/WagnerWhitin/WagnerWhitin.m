@@ -24,10 +24,21 @@ function [cost, route, quantity] = WagnerWhitin(fo, cm, d, T, cap_truck)
 	[cost, route] = dijkstra(costo, 1, T);
     
     quantity = zeros(1, length(route));
-    k=1;
-    for i = 1:length(route)-1
-        quantity(k) = sum(d(route(i+1):route(i),:));
+
+    to = 364;
+    from = route(1);
+    quantity(1) = sum(d(from:to));
+    
+    k=2;
+    for i = 2:length(route)
+        
+        from = route(i); %345
+        to = route(i-1)-1; %347
+        
+        quantity(k) = sum(d(from:to));
         k = k+1;
     end
+    
+    
     
 end

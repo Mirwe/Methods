@@ -7,6 +7,7 @@ data = data(3 : 366, 219 : 236);
 
 % removing negative values
 data(data < 0) = NaN;
+data(isnan(data))=0;
 
 erogato_PV = {0, 0, 0};
 j = 1;
@@ -15,7 +16,6 @@ for i = 1 : 3 : 18
     j = j + 1;
 end
 
-%% Info PV and products
 % distance of each PV
 dist = [100 200 300 400 500 600];
 
@@ -36,77 +36,69 @@ costo_perc = 0.03;
 % storage cost for unit
 cm = costo_perc * P;
 
-fo = zeros(length(erogato_PV), numP);
-Dday = zeros(length(erogato_PV), numP);
-Dtot = zeros(length(erogato_PV), numP);
-Qstar = zeros(length(erogato_PV), numP);
-Tstar = zeros(length(erogato_PV), numP);
-Nstar = zeros(length(erogato_PV), numP);
+%% 
+Qstar = zeros(length(erogato_PV),numP);
+Tstar = zeros(length(erogato_PV),numP);
+Nstar = zeros(length(erogato_PV),numP);
 
-%% Lotto economico
-for i = 1 : length(erogato_PV)
-    for j = 1 : numP
-        Dtot(i, j) = sum(erogato_PV{i}(:, j), 'omitnan');
-        
-        % cost of a single order
-        fo(i, j) = dist(i) * costo_km;
+for PV = 1:length(erogato_PV)
     
-        % optimal quantity of fuel to deliver to minimize costs
-        Qstar(i, j) = sqrt(2 * fo(i, j) * Dtot(i, j) / cm(j));
+    for p = 1:3
+
+        D = sum(erogato_PV{PV}(:,p));
+        costOrder = 0.5 * dist(PV);
+
+        Q = zeros(1,period);
+        storageCost = zeros(1,period);
+        orderCost = zeros(1,period);
+
+        for q=1:D
+            i = q ;
+            Q(i) = q;
+            storageCost(i) = 0.03 * P(p) * q / 2;
+
+            nOfCamions = ceil(q/sizeTruck);
+
+            orderCost(i) = (costOrder * nOfCamions) * (D / q);
+            %bCost(i) = P(p) * D; %questo cos'è?
+        end
+
+
+        totCost = storageCost + orderCost; % bCost +
+        [minCost, Q] = min(totCost);
         
-        % optimal supply time
-        Tstar(i, j) = sqrt((2 * fo(i, j)) / (cm(j) * Dtot(i, j)));
         
-        % optimal number of orders for each fuel
-        Nstar(i, j) = sqrt((cm(j) * Dtot(i, j)) / (2 * fo(i, j)));
-    end
+        Tstar(PV,p) = Q/D * period;
+        Nstar(PV,p) = 1/Tstar(PV,p);
+        
+        Qstar(PV,p) = Q;
+        
+        
+     end
 end
 
-
-storageCost = zeros(length(erogato_PV), numP);
-orderingCost = zeros(length(erogato_PV), numP);
-totCost = zeros(length(erogato_PV), numP);
-for i = 1 : length(erogato_PV)
-    for j = 1 : numP
-        storageCost(i, j) = cm(j) * (Qstar(i, j) / 2);
-        order_cost = fo(i, j) * (Dtot(i, j) / Qstar(i, j));
-        
-        totCost(i, j) = storageCost(i, j) + orderingCost(i, j);
-    end
-    
-end
-
-% Ho messo il costo totale per completezza (potremmo lasciarlo o toglierlo)
-% Poi voglio farti un ragionamento basato sulla formula per calcolare la
-% Qstar
-%{
-storageCost = zeros(length(erogato_PV), numP);
-orderingCost = zeros(length(erogato_PV), numP);
-totCost = zeros(length(erogato_PV), numP);
-for i = 1 : length(erogato_PV)
-    for j = 1 : numP
-        storageCost(i, j) = cm(j) * (Qstar(i, j) / 2);
-        orderingCost(i, j) = fo(i, j) * ceil(Qstar(i, j) / sizeTruck) * (Dtot(i, j) / Qstar(i, j));
-
-        % total cost of managing the inventory in the reference period
-        totCost(i, j) = storageCost(i, j) + orderingCost(i, j);
-    end
-end
-%}
 
 %% Wagner-Whitin
 cost_ = zeros(length(erogato_PV), numP);
 route_ = {{}, {}, {}, {}, {}, {}};
+quantity_ = {{}, {}, {}, {}, {}, {}};
 
 for i = 1 : length(erogato_PV)
     for j = 1 : numP
         domanda = erogato_PV{i}(:, j);
         domanda(isnan(domanda)) = 0;
+        
+        fo = dist(i) * costo_km;
              
-        [cost, route, quantity] = WagnerWhitin(fo(i, j), cm(j), domanda, period, sizeTruck);
+        [cost, route, quantity] = WagnerWhitin(fo, cm(j), domanda, period, sizeTruck);
+        
+        %Total cost
         cost_(i, j) = cost;
+        
+        %Days in which an order is made
         route_{i}{j} = route;
+        
+        %Quantity ordered for each day
         quantity_{i}{j} = quantity;
     end
 end
-
