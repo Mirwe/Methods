@@ -13,7 +13,7 @@ function [cost, route, quantity] = WagnerWhitin(fo, cm, d, T, cap_truck)
 	costo = zeros(T + 1);
 	for i = 1 : T
         for j = i + 1 : T + 1
-            costo(i, j) = fo * ceil(d(i)/cap_truck);
+            costo(i, j) = fo * ceil(sum(d(i:j-1,1))/cap_truck);
             for k = j - 1: - 1 : i
                 for m = k : -1 : i + 1
                     costo(i, j) = costo(i, j) + cm * d(k);
@@ -25,15 +25,15 @@ function [cost, route, quantity] = WagnerWhitin(fo, cm, d, T, cap_truck)
     
     quantity = zeros(1, length(route));
 
-    to = 364;
+    to = T;
     from = route(1);
     quantity(1) = sum(d(from:to));
     
     k=2;
     for i = 2:length(route)
         
-        from = route(i); %345
-        to = route(i-1)-1; %347
+        from = route(i); 
+        to = route(i-1)-1; 
         
         quantity(k) = sum(d(from:to));
         k = k+1;

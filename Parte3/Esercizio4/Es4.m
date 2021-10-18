@@ -53,13 +53,12 @@ for PV = 1:length(erogato_PV)
         orderCost = zeros(1,period);
 
         for q=1:D
-            i = q ;
-            Q(i) = q;
-            storageCost(i) = costo_perc * P(p) * q / 2;
+
+            storageCost(q) = costo_perc * P(p) * q / 2;
 
             nOfCamions = ceil(q/sizeTruck);
 
-            orderCost(i) = (costOrder * nOfCamions) * (D / q);
+            orderCost(q) = (costOrder * nOfCamions) * (D / q);
         end
 
 
