@@ -19,8 +19,6 @@ errore=immse(test_demand,demand);
 MAPE= mean((abs(test_demand-demand))./demand);
 
 
-
-
 %Prediction for the next months
 next_months = (9 : 16)';
 LR_prediction = predict(mdl, next_months);

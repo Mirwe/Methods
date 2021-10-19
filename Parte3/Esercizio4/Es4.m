@@ -48,7 +48,6 @@ for PV = 1:length(erogato_PV)
         D = sum(erogato_PV{PV}(:,p));
         costOrder = costo_km * dist(PV);
 
-        Q = zeros(1,period);
         storageCost = zeros(1,period);
         orderCost = zeros(1,period);
 
