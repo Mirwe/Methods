@@ -8,6 +8,7 @@
 % Output parameters
 % - cost: minimum (optimal) cost
 % - route: optimal path
+% - quantity 
 %
 function [cost, route, quantity] = WagnerWhitin(fo, cm, d, T, cap_truck)
 	costo = zeros(T + 1);

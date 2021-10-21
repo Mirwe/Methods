@@ -24,7 +24,7 @@ data = data(3:366,219:236);
 data(data<0)=NaN;
 data(isnan(data))=0;
 
-index_day = 1;
+index_day = 100;
 
 %Solo prodotto B95
 d = [data(index_day:364,1),data(index_day:364,4),data(index_day:364,7), ...

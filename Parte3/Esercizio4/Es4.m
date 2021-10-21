@@ -46,31 +46,30 @@ for PV = 1:length(erogato_PV)
     for p = 1:3
 
         D = sum(erogato_PV{PV}(:,p));
-        costOrder = costo_km * dist(PV);
+        transport_cost = costo_km * dist(PV);
 
         storageCost = zeros(1,period);
         orderCost = zeros(1,period);
 
         for q=1:D
 
-            storageCost(q) = costo_perc * P(p) * q / 2;
+            storageCost(q) = cm(p) * q / 2;
 
             nOfCamions = ceil(q/sizeTruck);
-
-            orderCost(q) = (costOrder * nOfCamions) * (D / q);
+            
+            orderCost(q) = (transport_cost * nOfCamions) * (D / q);
         end
 
 
         totCost = storageCost + orderCost; 
-        [minCost, Q] = min(totCost);
+        [minCost, Q] = min(totCost);    
         
+        Qstar(PV,p) = Q;
         
         Tstar(PV,p) = Q/D * period;
         Nstar(PV,p) = 1/Tstar(PV,p);
         
-        Qstar(PV,p) = Q;
-        
-        
+              
      end
 end
 

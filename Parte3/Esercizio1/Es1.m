@@ -1,7 +1,7 @@
 clear;
 clc;
 
-%% Inital data
+%% Initial data
 % Demand for a given product abut the last 8 months
 months = (1 : 8)';
 demand = [580, 700, 775, 650, 585, 760, 790, 815]';
@@ -15,13 +15,11 @@ figure
 plot(months,demand,'o',months,test_demand,'x')
 legend('Data','Linear Regression')
 
-
 %mean squared error
 mse_LR=immse(test_demand,demand);
 
-
 %Prediction for the next months
-next_months = (9 : 16)';
+next_months = (1 : 16)';
 LR_prediction = predict(mdl, next_months);
 
 
