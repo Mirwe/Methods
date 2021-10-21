@@ -17,7 +17,7 @@ for i = 1 : 3 : 18
 end
 
 % distance of each PV
-dist = [100 200 300 400 500 600];
+dist = [686 690 691 693 699 719];
 
 %price for transporting the fuel for each km
 costo_km = 0.5;

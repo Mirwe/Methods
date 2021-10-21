@@ -15,5 +15,5 @@ C = (scorta_iniziale + scorta_finale)/2;
 % Total output flow
 Q = scorta_iniziale + quantita_acquistata - scorta_finale;
 
-%Rotation Index
+% Rotation Index
 IR = Q./C;

@@ -68,7 +68,7 @@ links = optimconstr(num_PV, num_PV, T);
 
 %% Ipotiziamo che i PV abbiano già un 30% di prodotto in magazzino
 for i=1:num_PV
-    init(i) = x(i,1) == 0.5*sum(d(i,1:T));
+    init(i) = x(i,1) == 0.3*sum(d(i,1:T));
 end
 
 prob.Constraints.init = init;

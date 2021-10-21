@@ -10,13 +10,14 @@ demand = [580, 700, 775, 650, 585, 760, 790, 815]';
 % Fit linear regression model
 mdl = fitlm(months, demand, 'linear');
 
-
 test_demand = predict(mdl, months);
 figure
 plot(months,demand,'o',months,test_demand,'x')
-legend('Data','Predictions')
-errore=immse(test_demand,demand);
-MAPE= mean((abs(test_demand-demand))./demand);
+legend('Data','Linear Regression')
+
+
+%mean squared error
+mse_LR=immse(test_demand,demand);
 
 
 %Prediction for the next months
@@ -26,7 +27,7 @@ LR_prediction = predict(mdl, next_months);
 
 %% Exponential Smoothing
 alpha = 0.15;
-SE_prediction = zeros(1,16);
+SE_prediction = zeros(1,9);
 
 %The prediction for the first demand is equal to the demand itself
 SE_prediction(1) = demand(1);
@@ -35,4 +36,11 @@ SE_prediction(1) = demand(1);
 for i = 2 : 9
     SE_prediction(i) = alpha * demand(i-1) + (1-alpha) * SE_prediction(i-1);
 end
+
+%mean squared error
+mse_SE=immse(SE_prediction(1:8)',demand);
+
+figure
+plot(months,demand,'o',months,SE_prediction(1:8),'x')
+legend('Data','Exponential smoothing')
 
