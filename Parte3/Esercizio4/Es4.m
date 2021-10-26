@@ -19,16 +19,18 @@ end
 % distance of each PV
 dist = [686 690 691 693 699 719];
 
-%price for transporting the fuel for each km
+% price for transporting the fuel for each km
 costo_km = 0.5;
 sizeTruck = 39000;
 
 % number of product for each PV
 numP = 3;
-P = [1.5, 1.7, 1.6]; % price for each product (fuel)
 
-%reference period
-period = 364; %a quanto pare manca il 1° Gennaio e quindi sono 364 giorni e non 365 
+% price for each product (fuel)
+P = [1.5, 1.7, 1.6];
+
+% reference period
+period = 364;
 
 % storage cost rate (for the reference period -> a year)
 costo_perc = 0.03;
@@ -36,26 +38,26 @@ costo_perc = 0.03;
 % storage cost for unit
 cm = costo_perc * P;
 
-%% 
-Qstar = zeros(length(erogato_PV),numP);
-Tstar = zeros(length(erogato_PV),numP);
-Nstar = zeros(length(erogato_PV),numP);
+%% Lot size problem
+Qstar = zeros(length(erogato_PV), numP);
+Tstar = zeros(length(erogato_PV), numP);
+Nstar = zeros(length(erogato_PV), numP);
 
-for PV = 1:length(erogato_PV)
-    
-    for p = 1:3
+% Computation of relevant data for each product and PV 
+for PV = 1 : length(erogato_PV)
+    for p = 1 : numP
 
-        D = sum(erogato_PV{PV}(:,p));
+        D = sum(erogato_PV{PV}(:, p));
         transport_cost = costo_km * dist(PV);
 
-        storageCost = zeros(1,period);
-        orderCost = zeros(1,period);
+        storageCost = zeros(1, period);
+        orderCost = zeros(1, period);
 
-        for q=1:D
+        for q = 1 : D
 
             storageCost(q) = cm(p) * q / 2;
 
-            nOfCamions = ceil(q/sizeTruck);
+            nOfCamions = ceil(q / sizeTruck);
             
             orderCost(q) = (transport_cost * nOfCamions) * (D / q);
         end
@@ -64,12 +66,14 @@ for PV = 1:length(erogato_PV)
         totCost = storageCost + orderCost; 
         [minCost, Q] = min(totCost);    
         
+        % optimal quantity
         Qstar(PV,p) = Q;
         
+        % optimal supply time
         Tstar(PV,p) = Q/D * period;
-        Nstar(PV,p) = 1/Tstar(PV,p);
         
-              
+        %optimal number of orders
+        Nstar(PV,p) = 1 / Tstar(PV,p);      
      end
 end
 
