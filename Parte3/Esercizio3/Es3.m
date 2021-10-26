@@ -12,12 +12,9 @@ sigma = 5; %units/day
 %service level of 95%
 zeta = 1.65;
 
-
 %% Computation
 % Safety stock
 Ss = zeta * sigma * sqrt(tau);
 
 % Reorder point
 So = mu * tau + Ss;
-
-
