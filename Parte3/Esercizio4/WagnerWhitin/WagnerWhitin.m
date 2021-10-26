@@ -8,13 +8,13 @@
 % Output parameters
 % - cost: minimum (optimal) cost
 % - route: optimal path
-% - quantity 
+% - quantity: optimal quantity to be ordered for each order
 %
 function [cost, route, quantity] = WagnerWhitin(fo, cm, d, T, cap_truck)
 	costo = zeros(T + 1);
 	for i = 1 : T
         for j = i + 1 : T + 1
-            costo(i, j) = fo * ceil(sum(d(i:j-1,1))/cap_truck);
+            costo(i, j) = fo * ceil(sum(d(i : (j - 1), 1)) / cap_truck);
             for k = j - 1: - 1 : i
                 for m = k : -1 : i + 1
                     costo(i, j) = costo(i, j) + cm * d(k);
@@ -28,16 +28,16 @@ function [cost, route, quantity] = WagnerWhitin(fo, cm, d, T, cap_truck)
 
     to = T;
     from = route(1);
-    quantity(1) = sum(d(from:to));
+    quantity(1) = sum(d(from : to));
     
-    k=2;
-    for i = 2:length(route)
+    k = 2;
+    for i = 1 : length(route) - 1
         
-        from = route(i); 
-        to = route(i-1)-1; 
+        from = route(i + 1); 
+        to = route(i) - 1; 
         
-        quantity(k) = sum(d(from:to));
-        k = k+1;
+        quantity(k) = sum(d(from : to));
+        k = k + 1;
     end
     
     
